@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品詳細 - カフェ在庫管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .navbar h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .product-info {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .product-info h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            width: 30%;
+        }
+        .info-value {
+            color: #333;
+            width: 70%;
+        }
+        .stock-status {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .stock-low {
+            color: #d9534f;
+        }
+        .stock-normal {
+            color: #5cb85c;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            flex: 1;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+        .btn-add {
+            background-color: #5cb85c;
+            color: white;
+        }
+        .btn-add:hover {
+            background-color: #4cae4c;
+        }
+        .btn-remove {
+            background-color: #d9534f;
+            color: white;
+        }
+        .btn-remove:hover {
+            background-color: #c9302c;
+        }
+        .logs-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .logs-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #f9f9f9;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #ddd;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .quantity-in {
+            color: #5cb85c;
+            font-weight: bold;
+        }
+        .quantity-out {
+            color: #d9534f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>☕ カフェ在庫管理システム</h1>
+    </div>
+    
+    <div class="container">
+        <a href="{{ url_for('dashboard') }}" class="back-link">← 戻る</a>
+        
+        <div class="product-info">
+            <h2>{{ product['商品名'] }}</h2>
+            
+            <div class="info-row">
+                <div class="info-label">カテゴリ</div>
+                <div class="info-value">{{ product['カテゴリ名'] }}</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">現在の在庫</div>
+                <div class="info-value"><strong>{{ product['在庫数'] }}</strong> 個</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">最低在庫数</div>
+                <div class="info-value">{{ product['最低在庫数'] }} 個</div>
+            </div>
+            
+            <div class="stock-status {% if product['在庫数'] < product['最低在庫数'] %}stock-low{% else %}stock-normal{% endif %}">
+                {% if product['在庫数'] < product['最低在庫数'] %}
+                ⚠️ 在庫不足 - 補充が必要です
+                {% else %}
+                ✓ 在庫充足 - 問題なし
+                {% endif %}
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ url_for('add_stock', product_id=product['商品ID']) }}" class="btn btn-add">+ 入庫</a>
+                <a href="{{ url_for('remove_stock', product_id=product['商品ID']) }}" class="btn btn-remove">- 出庫</a>
+            </div>
+        </div>
+        
+        <div class="logs-section">
+            <h3>📋 入出庫ログ</h3>
+            
+            {% if logs %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>日時</th>
+                        <th>ユーザー</th>
+                        <th>数量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log['日時'] }}</td>
+                        <td>{{ log['名前'] }}</td>
+                        <td>
+                            {% if log['数量'] > 0 %}
+                                <span class="quantity-in">+{{ log['数量'] }} 個</span>
+                            {% else %}
+                                <span class="quantity-out">{{ log['数量'] }} 個</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #999;">ログがありません</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

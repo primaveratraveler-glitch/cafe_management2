@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>入出庫ログ - カフェ在庫管理システム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .navbar h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .logs-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .logs-container h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .quantity-in {
+            color: #5cb85c;
+            font-weight: bold;
+        }
+        .quantity-out {
+            color: #d9534f;
+            font-weight: bold;
+        }
+        .no-logs {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>☕ カフェ在庫管理システム</h1>
+        <div>
+            <a href="{{ url_for('dashboard') }}">ダッシュボード</a>
+            <a href="{{ url_for('logout') }}">ログアウト</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <a href="{{ url_for('dashboard') }}" class="back-link">← 戻る</a>
+        
+        <div class="logs-container">
+            <h2>📋 入出庫ログ</h2>
+            
+            {% if logs %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>日時</th>
+                        <th>カテゴリ</th>
+                        <th>商品名</th>
+                        <th>数量</th>
+                        <th>ユーザー</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log['日時'] }}</td>
+                        <td>{{ log['カテゴリ名'] }}</td>
+                        <td>{{ log['商品名'] }}</td>
+                        <td>
+                            {% if log['数量'] > 0 %}
+                                <span class="quantity-in">+{{ log['数量'] }} 個</span>
+                            {% else %}
+                                <span class="quantity-out">{{ log['数量'] }} 個</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ log['名前'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-logs">
+                <p>ログがありません</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
